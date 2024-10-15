@@ -1,0 +1,315 @@
+
+Kubernetes课程随手记
+
+    云原生：容器化、微服务、服务网格、声明式API、不可变基础设施 (Iac、GitOps)
+
+    服务治理系统：高级流量治理机制
+        SDK: Spring Cloud
+        服务网格：
+
+    亟待解决的核心问题:扩容、性能、可用性
+        共性问题
+
+        解决问题：
+            上云：公有云、私有云、混合云
+            架构改造：微服务
+                Spring Cloud Netflix, Spring Cloud Alibaba, ...
+            使用NoSQL：
+                文档存储、列式存储、KV存储、图式存储、时序存储、...
+            混沌工程：
+                Chaos Monkey, Chaos Blade，...
+            尽可能地使用开源软件
+            CICD和DevOps
+
+    Kubernetes编排：开源的容器编排平台
+        CRI: 容器
+        CNI: 网络
+        CSI: 存储
+
+        kubelet 
+
+    Serverless：
+        云计算的最终形态
+
+        BaaS --> Backend as a Service 
+            Knative 
+        FaaS --> Function as a Service
+            OpenFunction
+            ...
+
+
+        Knative： 
+            serving 
+            evnting
+            build --> Tekton 
+                Pipeline as a Code
+
+    GitOps
+        配置仓库
+            Repo
+
+    云原生： 
+        CNCF: 微服务、服务网格
+            容器化、声明式API、不可变基础设施
+
+        Kubernetes编排：开源的容器编排平台 
+            Image： Layers, 只读
+            容器技术：容器化
+            Kubernetes：声明式API
+
+    部署运行在一组主机上：
+        物理服务器、虚拟机
+
+        两类节点：
+            控制平面
+            工作节点
+
+        Kubernetes集群：
+            部署和运行应用：提交运行应用的目标对象从主机转为Kubernetes系统
+
+            Pod：容器集
+                容器的运行时：container runtime
+                    CRI: Container Runtime Interface --> 对接第三方cr
+                        Docker-CE
+                            1、kubelet --> docker-shim --> docker-ce 
+                            2、kubelet --> cri-dockerd --> docker-ce 
+                        Containerd 
+                        CRI-O 
+                        
+                        Kata Containers 
+
+    Kubernetes集群： 
+        Master节点：
+            kube-apiserver:
+                声明式API
+                http/https RESTful
+                    数据库服务器
+                    数据格式：内置提供了多种，资源类型（Pod, Deployment, ...）
+                        表结构 --> 类型
+                        行 --> 对象
+                
+                        正方形：
+                            边长：4cm --> 生产出来
+                        长方形：
+                        梯形：
+            kube-scheduler：调用Pod 
+            kube-controller-manager
+                Controller：负责把用户通过API Server中遵循 某个特定API实例化的对象，生产出来；
+                    智能程序：专用于特定领域 
+
+            etcd：集群的状态存储
+        Worker节点:
+            kubelet：控制器，专门负责管理Pod
+                CRI: 容器运行时 
+                CNI：网络插件，flannel（CoreOS）、Calico、Cilium、...
+                    给Pod提供一个虚拟网卡，分配一个IP地址
+                    将该网卡接入一个虚拟网络
+                    创建一个虚拟网络，将网络接入外部物理网络 
+                CSI：卷插件，对接第三方存储服务            
+            kube-proxy：将每个节点设定为一个可编程的负载器
+                对于每个Service，节点上的kube proxy都会将其转换为该节点上的iptables/ipvs规则
+                    iptables：规则多，服务多的情况，性能较差
+                        nftables --> netfilter 
+                    ipvs：规则少，性能好
+
+                eBPF：
+
+        AddOns：插件，附件
+            CoreDNS：必备
+                Kube DNS：skydns --> kubedns --> coredns 
+            Dashboard
+            ...
+
+    运行工作负载：
+        日常任务：部署、变更、更新、扩容、缩容、下线；
+            负责人：运维工程师、SRE
+
+        Kubernetes：编排运行应用
+            编排：工作负载型控制器（代码化了的运维工程师）
+                Deployment：编排无状态应用
+                    HPA/VPA
+
+                    关键组件：
+                        Pod Template
+                        Replicas
+                        Selector
+
+                StatefulSet：有状态应用
+                DaemonSet：系统类应用
+                Job：
+                CronJob：
+
+            Service Discovery and LB：Servie
+                kube proxy： 
+                    iptables 
+                    ipvs 
+
+                        依赖内核中的网络栈中的netfilter
+
+                Service类型：
+                    ClusterIP
+                    NodePort: 增强版的ClusterIP
+                    LoadBalancer：增强版的NodePort 
+
+                    ServiceName --> ClusterIP
+                        CoreDNS
+
+    Kubernetes： 
+        编排运行容器化应用的平台
+        声明式API接口
+            依赖于后端Controller支撑实现
+        控制器模式
+            Concilation Loop：确保实际状态无限接近或完全等同于期望状态 
+        
+        Platform for Platfrom 
+            Kubernetes + Istio = 服务网格 
+            Kubernetes + Istio + Knative = Serverless BaaS 
+                Backend as a Service 
+
+            Kubernetes + Kafka Operator + Kafka = Kafka Platform 
+
+        以应用为中心 
+
+    部署工具:
+        kubeadm 
+        kubeasz
+
+        二次发行版：
+            rancher
+            openshift
+            kubesphere
+            ...
+
+        https://landscape.cncf.io/
+
+        Image Mirror: 
+            registry.aliyuncs.com/google_containers
+
+            docker-ce 
+                docker-ce-cli 
+
+            containerd
+                ctr 
+                crictl 
+                nerdctl 
+
+        ~# kubeadm init --control-plane-endpoint="kubeapi.magedu.com" --kubernetes-version=v1.28.2 --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --image-repository=registry.aliyuncs.com/google_containers --upload-certs   
+
+
+    kubectl --> kube-apiserver 
+        运行命令
+
+        认证：加载当前用户$HOME/.kube/config   
+
+    重置节点：
+        kubeadm reset -f 
+        rm -rf /etc/kubernetes /var/lib/kubelet /etc/cni/net.d  
+
+    部署Calico网络插件：
+
+        部署Calico网络插件：
+            默认网络：192.168.0.0/16
+
+        curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.4/manifests/calico.yaml -O 
+
+        kubectl apply -f calico.yaml
+
+    https://github.com/iKubernetes/learning-k8s
+
+    API Server: 
+        资源类型
+            资源对象
+                CRUD: 
+                    Create 
+                    Read 
+                    Update 
+                    Delete 
+            
+            kubectl命令
+                create命令
+                get命令
+                edit/replace命令
+                delete命令
+
+资源对象的配置定义示例：
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: demoapp
+  name: demoapp
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demoapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: demoapp
+    spec:
+      containers:
+      - image: ikubernetes/demoapp:v1.0
+        name: demoapp
+        resources: {}
+status: {}
+
+    yaml格式 --> json格式 
+
+    Concilation Loop: 
+        diff status --> spec 
+
+    作业：
+        1、本地创建虚拟，部署kubernetes集群；
+        2、在私有云上创建Kubernetes；
+
+        
+
+
+
+
+
+
+
+
+        
+
+            
+            
+
+
+
+
+    ChatGPT：
+        工具：杠杆
+
+            
+
+        
+
+
+           
+
+            
+
+        
+
+
+
+     
+
+    
+
+    
+
+
+    
+
+
+
+
+
